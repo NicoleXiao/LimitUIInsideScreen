@@ -14,7 +14,8 @@ namespace DP.UI
         RigthDown,
         RightCenter,
         CenterUp,
-        CenterDown
+        CenterDown,
+        Center
     }
 
     public class ScreenLimit : MonoBehaviour
@@ -28,21 +29,32 @@ namespace DP.UI
 
         public CanvasScaler canvasScaler;
 
+        private bool _isbuttonDown = false;
+
 
         private void Update()
         {
             if (Input.GetMouseButtonDown(0))
             {
-                SetBgPos();
+                _isbuttonDown = true;
+            }
+            else if (Input.GetMouseButtonUp(0))
+            {
+                _isbuttonDown = false;
+            }
+            if (_isbuttonDown)
+            {
+                Debug.Log("MouseMove");
+                SetUIPos();
             }
         }
 
         /// <summary>
         /// 根据位置信息，设置不同方位的偏移量
         /// </summary>
-        public void SetBgPos()
+        public void SetUIPos()
         {
-            Vector2 curInputPos =Input.mousePosition;
+            Vector2 curInputPos = Input.mousePosition;
             float x = curInputPos.x;
             float y = curInputPos.y;
             float w = Mathf.Abs(target.rect.x) * GetScaleFactor();
@@ -74,13 +86,15 @@ namespace DP.UI
                 case Orientation.CenterDown:
                     curInputPos = new Vector2(x, y + h + posOffset);
                     break;
+                case Orientation.Center:
+                    curInputPos = new Vector2(x, y);
+                    break;
             }
             SetRightPos(curInputPos);
         }
 
         /// <summary>
-        /// 如果ui没有超出屏幕，出现的点就是手指的位置
-        /// 超出屏幕了，要把ui移到屏幕里面
+        /// ui的位置如果超出屏幕了，要把ui移到屏幕里面
         /// </summary>
         /// <param name="curInputPos"></param>
         public void SetRightPos(Vector2 curInputPos)
@@ -126,6 +140,10 @@ namespace DP.UI
             target.anchoredPosition = localPos;
         }
 
+        /// <summary>
+        /// 获取画布的缩放
+        /// </summary>
+        /// <returns></returns>
         public float GetScaleFactor()
         {
             float scaleFactor = 1f;
